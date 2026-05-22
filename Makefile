@@ -65,7 +65,8 @@ C_SOURCES = \
   Middlewares/FreeRTOS/tasks.c \
   Middlewares/FreeRTOS/timers.c \
   Middlewares/FreeRTOS/portable/MemMang/heap_4.c \
-  Middlewares/FreeRTOS/portable/GCC/ARM_CM3/port.c
+  Middlewares/FreeRTOS/portable/GCC/ARM_CM3/port.c \
+  f01_flight/
 
 ASM_SOURCES = startup_stm32f103xe_gcc.s
 
