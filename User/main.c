@@ -31,6 +31,19 @@
 
 extern void MX_GPIO_Init(void);
 
+/**
+ * @brief 主函数，程序入口点
+ *
+ * 依次完成硬件平台初始化与FreeRTOS启动，包括：
+ * - HAL库初始化
+ * - CubeMX生成的GPIO配置
+ * - 系统时钟配置（72MHz）
+ * - 延时、串口、LED、LCD、按键、SRAM及内存池初始化
+ * - 启动FreeRTOS例程
+ *
+ * @note 基本定时器TIM6/TIM7的1ms中断初始化已注释，按需启用
+ * @return 理论上不应返回，FreeRTOS调度器接管后main函数不再返回
+ */
 int main(void)
 {
     HAL_Init();                         /* 初始化HAL库 */
