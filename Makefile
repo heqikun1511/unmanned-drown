@@ -24,7 +24,9 @@ INCLUDE_DIRS = \
   Drivers/STM32F1xx_HAL_Driver/Inc/Legacy \
   Middlewares \
   Middlewares/FreeRTOS/include \
-  Middlewares/FreeRTOS/portable/GCC/ARM_CM3
+  Middlewares/FreeRTOS/portable/GCC/ARM_CM3 \
+  interface \
+  f01_flight/Core/Inc
 
 INCLUDES = $(addprefix -I,$(INCLUDE_DIRS))
 
@@ -66,7 +68,7 @@ C_SOURCES = \
   Middlewares/FreeRTOS/timers.c \
   Middlewares/FreeRTOS/portable/MemMang/heap_4.c \
   Middlewares/FreeRTOS/portable/GCC/ARM_CM3/port.c \
-  f01_flight/
+  interface/int_IP5305T.c \
 
 ASM_SOURCES = startup_stm32f103xe_gcc.s
 

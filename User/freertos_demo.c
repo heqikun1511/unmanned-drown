@@ -3,13 +3,14 @@
 #include "./BSP/LED/led.h"
 #include "./BSP/LCD/lcd.h"
 #include "./BSP/KEY/key.h"
-#include "./SYSTEM/delay/delay.h"`
+#include "./SYSTEM/delay/delay.h"
 /*FreeRTOS*********************************************************************************************/
 #include "FreeRTOS.h"
 #include "task.h"
 #include "queue.h"
 #include "semphr.h"
 #include "FreeRTOSConfig.h"
+#include "int_IP5305T.h"
 
 
 /******************************************************************************************************/
@@ -26,6 +27,14 @@ TaskHandle_t            StartTask_Handler;  /* 任务句柄 */
 void start_task(void *pvParameters);        /* 任务函数 */
 
 
+
+
+
+#define POWER_TASK_PRIO 4
+#define POWER_STK_SIZE 128
+TaskHandle_t  power_task_handler;
+void power_task(void *pvParameters);
+
 void freertos_demo(void)
 {   
 
@@ -38,6 +47,8 @@ void freertos_demo(void)
                 (void*          )NULL,                  /* 传入给任务函数的参数 */
                 (UBaseType_t    )START_TASK_PRIO,       /* 任务优先级 */
                 (TaskHandle_t*  )&StartTask_Handler);   /* 任务句柄 */
+
+     
     vTaskStartScheduler();
 }
 
@@ -49,10 +60,22 @@ void freertos_demo(void)
 void start_task(void *pvParameters)
 {
     taskENTER_CRITICAL();           /* 进入临界区 */
-    
+    xTaskCreate((TaskFunction_t )power_task,            /* 任务函数 */
+                (const char*    )"power_task",          /* 任务名称 */
+                (uint16_t       )POWER_STK_SIZE,        /* 任务堆栈大小 */
+                (void*          )NULL,                  /* 传入给任务函数的参数 */
+                (UBaseType_t    )POWER_TASK_PRIO,       /* 任务优先级 */
+                (TaskHandle_t*  )&power_task_handler);   /* 任务句柄 */
    
 
     taskEXIT_CRITICAL();            /* 退出临界区 */
     vTaskDelete(NULL);              /* 删除自身，避免任务函数返回 */
 }
 
+void power_task(void *pvParameters){
+    TickType_t xLastWakeTime=xTaskGetTickCount();//获取基准时间
+    while(1){
+        vTaskDelayUntil(&xLastWakeTime,10000);
+        IP5305T_InitStart();
+    }
+}
