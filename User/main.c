@@ -29,9 +29,12 @@
 #include "freertos_demo.h"
 #include "./BSP/TIMER/btim.h"
 
+extern void MX_GPIO_Init(void);
+
 int main(void)
 {
     HAL_Init();                         /* 初始化HAL库 */
+    MX_GPIO_Init();                     /* CubeMX GPIO初始化 */
     sys_stm32_clock_init(RCC_PLL_MUL9); /* 设置时钟, 72Mhz */
     delay_init(72);                     /* 延时初始化 */
     usart_init(115200);                 /* 串口初始化为115200 */
