@@ -12,11 +12,21 @@
 #include "FreeRTOSConfig.h"
 #include "int_IP5305T.h"
 #include "int_motor.h"
+#include "int_led.h"
+#include "com_config.h"
 
 motor_struct left0={.tim=&htim3,.channel=TIM_CHANNEL_1,.speed=200};
 motor_struct right0={.tim=&htim2,.channel=TIM_CHANNEL_2,.speed=200};
 motor_struct left1={.tim=&htim4,.channel=TIM_CHANNEL_4,.speed=200};
 motor_struct right1={.tim=&htim1,.channel=TIM_CHANNEL_3,.speed=200};
+
+
+led_struct left_top={.port=LED1_GPIO_Port,.Pin=LED1_Pin};
+led_struct right_top={.port=LED2_GPIO_Port,.Pin=LED2_Pin};
+led_struct left_bottom={.port=LED3_GPIO_Port,.Pin=LED3_Pin};
+led_struct right_bottom={.port=LED4_GPIO_Port,.Pin=LED4_Pin};
+
+Remotestate remotestate=REMOTE_CONNECT;
 /******************************************************************************************************/
 /*FreeRTOS配置*/
 
@@ -47,6 +57,17 @@ void flight_task(void *pvParameters);
 
 #define POWER_TASK_PERIOD 10000
 #define FLIGHT_TASK_PERIOD 6
+#define LED_TASK_PERIOD 100
+
+#define LED_TASK_PRIO 1
+#define LED_STK_SIZE 128
+TaskHandle_t  led_task_handler;
+void led_task(void *pvParameters);
+
+
+
+
+
 void freertos_demo(void)
 {   
 
@@ -86,6 +107,12 @@ void start_task(void *pvParameters)
                 (UBaseType_t    )FLIGHT_TASK_PRIO,       /* 任务优先级 */
                 (TaskHandle_t*  )&flight_task_handler);  /* 任务句柄 */
     
+     xTaskCreate((TaskFunction_t )led_task,            /* 任务函数 */
+                (const char*    )"led_task",          /* 任务名称 */
+                (uint16_t       )LED_STK_SIZE,        /* 任务堆栈大小 */
+                (void*          )NULL,                  /* 传入给任务函数的参数 */
+                (UBaseType_t    )LED_TASK_PRIO,       /* 任务优先级 */
+                (TaskHandle_t*  )&led_task_handler);  /* 任务句柄 */            
 
     taskEXIT_CRITICAL();            /* 退出临界区 */
     vTaskDelete(NULL);              /* 删除自身，避免任务函数返回 */
@@ -108,4 +135,28 @@ void flight_task(void *pvParameters){
         vTaskDelayUntil(&xLastWakeTime,FLIGHT_TASK_PERIOD);
     }
 
+}
+void led_task(void *pvParameters){
+    TickType_t xLastWakeTime=xTaskGetTickCount();
+
+    while(1){
+        if(remotestate==REMOTE_CONNECT){
+            int_led_on(&left_top);
+
+            int_led_on(&right_top);
+
+            int_led_on(&left_bottom);
+
+            int_led_on(&right_bottom);
+        }
+        else if(remotestate==REMOTE_DISCONNECT){
+            int_led_off(&left_top);
+            int_led_off(&right_top);
+            int_led_off(&left_bottom);
+            int_led_off(&right_bottom);
+        }
+
+        vTaskDelayUntil(&xLastWakeTime,LED_TASK_PERIOD);
+
+    }
 }
