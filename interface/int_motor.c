@@ -1,6 +1,6 @@
 #include "int_motor.h"
 
-void motor_setspeed(Motor_t *motor)
+void motor_setspeed(motor_struct *motor)
 {
     if(motor->speed > 1000){
         printf("speed too large\n");

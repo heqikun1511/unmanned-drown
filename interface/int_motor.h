@@ -4,13 +4,13 @@
 #include "tim.h"
 
 typedef struct{
-    TIM_HandleTypeDef *tim
+    TIM_HandleTypeDef *tim;
     uint16_t channel;
     uint16_t speed;
+} motor_struct;
 
-}motor_struct
-
-void motor_setspeed(Motor_t *motor);
+void motor_setspeed(motor_struct *motor);
+void int_motor_start(motor_struct *motor);
 
 
 
