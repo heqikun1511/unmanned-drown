@@ -57,7 +57,7 @@ void Error_Handler(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
-#define POWERKEY_Pin GPIO_PIN_15
+#define POWERKEY_Pin GPIO_PIN_2
 #define POWERKEY_GPIO_Port GPIOB
 
 /* USER CODE BEGIN Private defines */
