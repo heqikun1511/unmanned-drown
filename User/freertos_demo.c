@@ -11,8 +11,12 @@
 #include "semphr.h"
 #include "FreeRTOSConfig.h"
 #include "int_IP5305T.h"
+#include "int_motor.h"
 
-
+motor_struct left0={.tim=&htim3,.channel=TIM_CHANNEL_1,.speed=200};
+motor_struct right0={.tim=&htim2,.channel=TIM_CHANNEL_2,.speed=200};
+motor_struct left1={.tim=&htim4,.channel=TIM_CHANNEL_4,.speed=200};
+motor_struct right1={.tim=&htim1,.channel=TIM_CHANNEL_3,.speed=200};
 /******************************************************************************************************/
 /*FreeRTOS配置*/
 
@@ -35,6 +39,14 @@ void start_task(void *pvParameters);        /* 任务函数 */
 TaskHandle_t  power_task_handler;
 void power_task(void *pvParameters);
 
+
+#define FLIGHT_TASK_PRIO 3
+#define FLIGHT_STK_SIZE 128
+TaskHandle_t  flight_task_handler;
+void flight_task(void *pvParameters);
+
+#define POWER_TASK_PERIOD 10000
+#define FLIGHT_TASK_PERIOD 6
 void freertos_demo(void)
 {   
 
@@ -66,7 +78,14 @@ void start_task(void *pvParameters)
                 (void*          )NULL,                  /* 传入给任务函数的参数 */
                 (UBaseType_t    )POWER_TASK_PRIO,       /* 任务优先级 */
                 (TaskHandle_t*  )&power_task_handler);   /* 任务句柄 */
-   
+    
+    xTaskCreate((TaskFunction_t )flight_task,            /* 任务函数 */
+                (const char*    )"flight_task",          /* 任务名称 */
+                (uint16_t       )FLIGHT_STK_SIZE,        /* 任务堆栈大小 */
+                (void*          )NULL,                  /* 传入给任务函数的参数 */
+                (UBaseType_t    )FLIGHT_TASK_PRIO,       /* 任务优先级 */
+                (TaskHandle_t*  )&flight_task_handler);  /* 任务句柄 */
+    
 
     taskEXIT_CRITICAL();            /* 退出临界区 */
     vTaskDelete(NULL);              /* 删除自身，避免任务函数返回 */
@@ -78,4 +97,15 @@ void power_task(void *pvParameters){
         vTaskDelayUntil(&xLastWakeTime,10000);
         IP5305T_InitStart();
     }
+}
+void flight_task(void *pvParameters){
+
+    TickType_t xLastWakeTime=xTaskGetTickCount();//获取基准时间
+
+    while(1){
+
+       
+        vTaskDelayUntil(&xLastWakeTime,FLIGHT_TASK_PERIOD);
+    }
+
 }
