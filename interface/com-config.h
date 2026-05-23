@@ -3,8 +3,17 @@
 #include "main.h"
 typeder enum{
     REMOTE_CONNECT=0;
-    REMOTE_DISCONNECT=1;
+    REMOTE_DISCONNECT,
 
 }Remotestate
+
+
+
+typedef enum{
+IDLE=0;
+NORMAL,
+FIX_HEIGHT,
+FAIL,
+}flightstate
 
 #endif 
