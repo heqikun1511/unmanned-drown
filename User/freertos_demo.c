@@ -27,6 +27,7 @@ led_struct left_bottom={.port=LED3_GPIO_Port,.Pin=LED3_Pin};
 led_struct right_bottom={.port=LED4_GPIO_Port,.Pin=LED4_Pin};
 
 Remotestate remotestate=REMOTE_CONNECT;
+flightstate flight_state=FAIL;
 /******************************************************************************************************/
 /*FreeRTOS配置*/
 
