@@ -1,34 +1,25 @@
 #include "SI24R1.h"
+#include "spi.h"
 
-u8 code TX_ADDRESS[TX_ADR_WIDTH] = {0x0A,0x01,0x07,0x0E,0x01};  // ∂®“Â“ª∏ˆæ≤Ã¨∑¢ÀÕµÿ÷∑
+uint8_t code TX_ADDRESS[TX_ADR_WIDTH] = {0x0A,0x01,0x07,0x0E,0x01};  
 
 
-static u8 SPI_RW(u8 byte)
+static uint8_t SPI_RW(uint8_t byte)
 {
-	u8 bit_ctr;
-	for(bit_ctr=0; bit_ctr<8; bit_ctr++)
-	{
-		if(byte & 0x80)
-			MOSI = 1;
-		else
-			MOSI = 0;																 
-		byte = (byte << 1);                      
-		SCK = 1;                                   
-		byte |= MISO;                             
-		SCK = 0;                                
-	}
-	return(byte);                              
+	uint8_t rx_data=0;
+	HAL_SPI_TransmitReceive(&hspi1, &byte, &rx_data, 1, 1000);
+	return rx_data;
 }
 
 
 /********************************************************
-∫Ø ˝π¶ƒ‹£∫SI24R1“˝Ω≈≥ı ºªØ                
-»Îø⁄≤Œ ˝£∫Œﬁ
-∑µªÿ  ÷µ£∫Œﬁ
-*********************************************************/
+ * Function: SI24R1 GPIO Initialization
+ * Input: None
+ * Return: None
+ *********************************************************/
 void SI24R1_Init(void)
 {
-	SCK = 0; 													//SPI ±÷”œﬂ¿≠µÕ
+	SCK = 0; 																	// SPI clock low
 	CSN = 1;				
 	CE 	= 0;				
 	IRQ = 1;
@@ -36,173 +27,176 @@ void SI24R1_Init(void)
 
 
 /********************************************************
-∫Ø ˝π¶ƒ‹£∫–¥ºƒ¥Ê∆˜µƒ÷µ£®µ•◊÷Ω⁄£©                
-»Îø⁄≤Œ ˝£∫reg:ºƒ¥Ê∆˜”≥…‰µÿ÷∑£®∏Ò Ω£∫WRITE_REG£¸reg£©
-					value:ºƒ¥Ê∆˜µƒ÷µ
-∑µªÿ  ÷µ£∫◊¥Ã¨ºƒ¥Ê∆˜µƒ÷µ
-*********************************************************/
-u8 SI24R1_Write_Reg(u8 reg, u8 value)
+ * Function: Write register (single byte)
+ * Input: reg - register address (WRITE_REG | reg)
+ *        value - register value
+ * Return: status register value
+ *********************************************************/
+uint8_t SI24R1_Write_Reg(uint8_t reg, uint8_t value)
 {
-	u8 status;
+	uint8_t status;
 
-	CSN = 0;                 
+	CS_LOW;               
 	status = SPI_RW(reg);				
 	SPI_RW(value);
-	CSN = 1;  
+	CS_HIGH;
 	
 	return(status);
 }
 
 
 /********************************************************
-∫Ø ˝π¶ƒ‹£∫–¥ºƒ¥Ê∆˜µƒ÷µ£®∂‡◊÷Ω⁄£©                  
-»Îø⁄≤Œ ˝£∫reg:ºƒ¥Ê∆˜”≥…‰µÿ÷∑£®∏Ò Ω£∫WRITE_REG£¸reg£©
-					pBuf:–¥ ˝æ› ◊µÿ÷∑
-					bytes:–¥ ˝æ›◊÷Ω⁄ ˝
-∑µªÿ  ÷µ£∫◊¥Ã¨ºƒ¥Ê∆˜µƒ÷µ
-*********************************************************/
-u8 SI24R1_Write_Buf(u8 reg, const u8 *pBuf, u8 bytes)
+ * Function: Write register (multiple bytes)
+ * Input: reg - register address (WRITE_REG | reg)
+ *        pBuf - pointer to data buffer
+ *        bytes - number of bytes to write
+ * Return: status register value
+ *********************************************************/
+uint8_t SI24R1_Write_Buf(uint8_t reg, const uint8_t *pBuf, uint8_t bytes)
 {
-	u8 status,byte_ctr;
+	uint8_t status,byte_ctr;
 
-  CSN = 0;                                  			
+  CS_LOW;                                  			
   status = SPI_RW(reg);                          
   for(byte_ctr=0; byte_ctr<bytes; byte_ctr++)     
     SPI_RW(*pBuf++);
-  CSN = 1;                                      	
+  CS_HIGH;                                      	
 
   return(status);       
 }							  					   
 
 
 /********************************************************
-∫Ø ˝π¶ƒ‹£∫∂¡»°ºƒ¥Ê∆˜µƒ÷µ£®µ•◊÷Ω⁄£©                  
-»Îø⁄≤Œ ˝£∫reg:ºƒ¥Ê∆˜”≥…‰µÿ÷∑£®∏Ò Ω£∫READ_REG£¸reg£©
-∑µªÿ  ÷µ£∫ºƒ¥Ê∆˜÷µ
-*********************************************************/
-u8 SI24R1_Read_Reg(u8 reg)
+ * Function: Read register (single byte)
+ * Input: reg - register address (READ_REG | reg)
+ * Return: register value
+ *********************************************************/
+uint8_t SI24R1_Read_Reg(uint8_t reg)
 {
- 	u8 value;
+ 	uint8_t value;
 
-	CSN = 0;    
+	CS_LOW;    
 	SPI_RW(reg);			
 	value = SPI_RW(0);
-	CSN = 1;              
+	CS_HIGH;              
 
 	return(value);
 }
 
 
 /********************************************************
-∫Ø ˝π¶ƒ‹£∫∂¡»°ºƒ¥Ê∆˜µƒ÷µ£®∂‡◊÷Ω⁄£©                  
-»Îø⁄≤Œ ˝£∫reg:ºƒ¥Ê∆˜”≥…‰µÿ÷∑£®READ_REG£¸reg£©
-					pBuf:Ω” ’ª∫≥Â«¯µƒ ◊µÿ÷∑
-					bytes:∂¡»°◊÷Ω⁄ ˝
-∑µªÿ  ÷µ£∫◊¥Ã¨ºƒ¥Ê∆˜µƒ÷µ
-*********************************************************/
-u8 SI24R1_Read_Buf(u8 reg, u8 *pBuf, u8 bytes)
+ * Function: Read register (multiple bytes)
+ * Input: reg - register address (READ_REG | reg)
+ *        pBuf - pointer to receive buffer
+ *        bytes - number of bytes to read
+ * Return: status register value
+ *********************************************************/
+uint8_t SI24R1_Read_Buf(uint8_t reg, uint8_t *pBuf, uint8_t bytes)
 {
-	u8 status,byte_ctr;
+	uint8_t status,byte_ctr;
 
-  CSN = 0;                                        
-  status = SPI_RW(reg);                           
+  CS_LOW;
+  status = SPI_RW(reg);
   for(byte_ctr=0;byte_ctr<bytes;byte_ctr++)
-    pBuf[byte_ctr] = SPI_RW(0);                   //∂¡»° ˝æ›£¨µÕ◊÷Ω⁄‘⁄«∞
-  CSN = 1;                                        
+    pBuf[byte_ctr] = SPI_RW(0);                   // Read data, MSB first
+  CS_HIGH;
 
-  return(status);    
+  return(status);
 }
 
 
 /********************************************************
-∫Ø ˝π¶ƒ‹£∫SI24R1Ω” ’ƒ£ Ω≥ı ºªØ                      
-»Îø⁄≤Œ ˝£∫Œﬁ
-∑µªÿ  ÷µ£∫Œﬁ
-*********************************************************/
+ * Function: SI24R1 RX Mode Initialization
+ * Input: None
+ * Return: None
+ *********************************************************/
 void SI24R1_RX_Mode(void)
 {
-	CE = 0;
-	SI24R1_Write_Buf(WRITE_REG + RX_ADDR_P0, TX_ADDRESS, TX_ADR_WIDTH);	// Ω” ’…Ë±∏Ω” ’Õ®µ¿0 π”√∫Õ∑¢ÀÕ…Ë±∏œ‡Õ¨µƒ∑¢ÀÕµÿ÷∑
-	SI24R1_Write_Reg(WRITE_REG + EN_AA, 0x01);               						//  πƒ‹Ω” ’Õ®µ¿0◊‘∂Ø”¶¥
-	SI24R1_Write_Reg(WRITE_REG + EN_RXADDR, 0x01);           						//  πƒ‹Ω” ’Õ®µ¿0
-	SI24R1_Write_Reg(WRITE_REG + RF_CH, 40);                 						// —°‘Ò…‰∆µÕ®µ¿0x40
-	SI24R1_Write_Reg(WRITE_REG + RX_PW_P0, TX_PLOAD_WIDTH);  						// Ω” ’Õ®µ¿0—°‘Ò∫Õ∑¢ÀÕÕ®µ¿œ‡Õ¨”––ß ˝æ›øÌ∂»
-	SI24R1_Write_Reg(WRITE_REG + RF_SETUP, 0x0f);            						//  ˝æ›¥´ ‰¬ 2Mbps£¨∑¢…‰π¶¬ 7dBm
-	SI24R1_Write_Reg(WRITE_REG + CONFIG, 0x0f);              						// CRC πƒ‹£¨16ŒªCRC–£—È£¨…œµÁ£¨Ω” ’ƒ£ Ω
-	SI24R1_Write_Reg(WRITE_REG + STATUS, 0xff);  												//«Â≥˝À˘”–µƒ÷–∂œ±Í÷æŒª
-	CE = 1;                                            									// ¿≠∏ﬂCE∆Ù∂ØΩ” ’…Ë±∏
+	CE_LOW;
+	SI24R1_Write_Buf(WRITE_REG + RX_ADDR_P0, TX_ADDRESS, TX_ADR_WIDTH);	// RX pipe0 uses same address as TX
+	SI24R1_Write_Reg(WRITE_REG + EN_AA, 0x01);               						// Enable auto-ACK on pipe0
+	SI24R1_Write_Reg(WRITE_REG + EN_RXADDR, 0x01);           						// Enable RX pipe0
+	SI24R1_Write_Reg(WRITE_REG + RF_CH, 40);                 						// Select RF channel 40
+	SI24R1_Write_Reg(WRITE_REG + RX_PW_P0, TX_PLOAD_WIDTH);  						// Set payload width for pipe0
+	SI24R1_Write_Reg(WRITE_REG + RF_SETUP, 0x0f);            						// Data rate 2Mbps, TX power 7dBm
+	SI24R1_Write_Reg(WRITE_REG + CONFIG, 0x0f);              						// CRC enable, 16-bit CRC, power up, RX mode
+	SI24R1_Write_Reg(WRITE_REG + STATUS, 0xff);  												// Clear all interrupt flags
+	CE_HIGH;                                            									// CE high, start listening
 }						
 
 
 /********************************************************
-∫Ø ˝π¶ƒ‹£∫SI24R1∑¢ÀÕƒ£ Ω≥ı ºªØ                      
-»Îø⁄≤Œ ˝£∫Œﬁ
-∑µªÿ  ÷µ£∫Œﬁ
-*********************************************************/
+ * Function: SI24R1 TX Mode Initialization
+ * Input: None
+ * Return: None
+ *********************************************************/
 void SI24R1_TX_Mode(void)
 {
-	CE = 0;
-	SI24R1_Write_Buf(WRITE_REG + TX_ADDR, TX_ADDRESS, TX_ADR_WIDTH);     // –¥»Î∑¢ÀÕµÿ÷∑
-	SI24R1_Write_Buf(WRITE_REG + RX_ADDR_P0, TX_ADDRESS, TX_ADR_WIDTH);  // Œ™¡À”¶¥Ω” ’…Ë±∏£¨Ω” ’Õ®µ¿0µÿ÷∑∫Õ∑¢ÀÕµÿ÷∑œ‡Õ¨
+	CE_LOW;
+	SI24R1_Write_Buf(SI24R1_WRITE_REG + TX_ADDR, TX_ADDRESS, TX_ADR_WIDTH);     // Write TX address
+	SI24R1_Write_Buf(SI24R1_WRITE_REG + RX_ADDR_P0, TX_ADDRESS, TX_ADR_WIDTH);  // RX pipe0 same as TX address for auto-ACK
 
-	SI24R1_Write_Reg(WRITE_REG + EN_AA, 0x01);       											//  πƒ‹Ω” ’Õ®µ¿0◊‘∂Ø”¶¥
-	SI24R1_Write_Reg(WRITE_REG + EN_RXADDR, 0x01);   											//  πƒ‹Ω” ’Õ®µ¿0
-	SI24R1_Write_Reg(WRITE_REG + SETUP_RETR, 0x0a);  											// ◊‘∂Ø÷ÿ∑¢—” ±µ»¥˝250us+86us£¨◊‘∂Ø÷ÿ∑¢10¥Œ
-	SI24R1_Write_Reg(WRITE_REG + RF_CH, 40);         											// —°‘Ò…‰∆µÕ®µ¿0x40
-	SI24R1_Write_Reg(WRITE_REG + RF_SETUP, 0x0f);    											//  ˝æ›¥´ ‰¬ 2Mbps£¨∑¢…‰π¶¬ 7dBm
-	SI24R1_Write_Reg(WRITE_REG + CONFIG, 0x0e);      											// CRC πƒ‹£¨16ŒªCRC–£—È£¨…œµÁ
-	//CE = 1;
+	SI24R1_Write_Reg(SI24R1_WRITE_REG + EN_AA, 0x01);       										// Enable auto-ACK on pipe0
+	SI24R1_Write_Reg(SI24R1_WRITE_REG + EN_RXADDR, 0x01);   										// Enable RX pipe0
+	SI24R1_Write_Reg(SI24R1_WRITE_REG + SETUP_RETR, 0x0a);  										// Auto-retransmit: delay 250us+86us, 10 retries
+	SI24R1_Write_Reg(SI24R1_WRITE_REG + RF_CH, 40);         										// Select RF channel 40
+	SI24R1_Write_Reg(SI24R1_WRITE_REG + RF_SETUP, 0x0f);    										// Data rate 2Mbps, TX power 7dBm
+	SI24R1_Write_Reg(SI24R1_WRITE_REG + CONFIG, 0x0e);      										// CRC enable, 16-bit CRC, power up, TX mode
+	CE_HIGH;
 }
 
 
 /********************************************************
-∫Ø ˝π¶ƒ‹£∫∂¡»°Ω” ’ ˝æ›                       
-»Îø⁄≤Œ ˝£∫rxbuf:Ω” ’ ˝æ›¥Ê∑≈ ◊µÿ÷∑
-∑µªÿ  ÷µ£∫0:Ω” ’µΩ ˝æ›
-          1:√ª”–Ω” ’µΩ ˝æ›
-*********************************************************/
-u8 SI24R1_RxPacket(u8 *rxbuf)
+ * Function: Receive a data packet Â∞ÜÊé•ÂèóÂà∞ÁöÑ‰øùÂ≠òÂú®FIFO‰∏≠
+ * Input: rxbuf - pointer to receive buffer
+ * Return: 0 - data received
+ *         1 - no data received
+ *********************************************************/
+uint8_t SI24R1_RxPacket(uint8_t *rxbuf)
 {
-	u8 state;
-	state = SI24R1_Read_Reg(STATUS);  			                 //∂¡»°◊¥Ã¨ºƒ¥Ê∆˜µƒ÷µ    	  
-	SI24R1_Write_Reg(WRITE_REG+STATUS,state);               //«Â≥˝RX_DS÷–∂œ±Í÷æ
+	uint8_t state;
+	state = SI24R1_Read_Reg(STATUS);  			                 // Read status register
+	SI24R1_Write_Reg(SI24R1_WRITE_REG+STATUS,state);               // Clear RX_DS interrupt flag
 
-	if(state & RX_DR)								                           //Ω” ’µΩ ˝æ›
+	if(state & RX_DR)								                           // Data received
 	{
-		SI24R1_Read_Buf(RD_RX_PLOAD,rxbuf,TX_PLOAD_WIDTH);     //∂¡»° ˝æ›
-		SI24R1_Write_Reg(FLUSH_RX,0xff);					              //«Â≥˝RX FIFOºƒ¥Ê∆˜
+		SI24R1_Read_Buf(RD_RX_PLOAD,rxbuf,TX_PLOAD_WIDTH);     // Read payload
+		SI24R1_Write_Reg(SI24R1_WRITE_REG + FLUSH_RX,0xff);	//Ê∏ÖÁ©∫ÈòüÂàó				              // Flush RX FIFO
 		return 0; 
-	}	   
-	return 1;                                                   //√ª ’µΩ»Œ∫Œ ˝æ›
+	}   
+	return 1;                                                   // No data received
 }
 
 
 /********************************************************
-∫Ø ˝π¶ƒ‹£∫∑¢ÀÕ“ª∏ˆ ˝æ›∞¸                      
-»Îø⁄≤Œ ˝£∫txbuf:“™∑¢ÀÕµƒ ˝æ›
-∑µªÿ  ÷µ£∫0x10:¥ÔµΩ◊Ó¥Û÷ÿ∑¢¥Œ ˝£¨∑¢ÀÕ ß∞‹ 
-          0x20:∑¢ÀÕ≥…π¶            
-          0xff:∑¢ÀÕ ß∞‹                  
-*********************************************************/
-u8 SI24R1_TxPacket(u8 *txbuf)
+ * Function: Transmit a data packet
+ * Input: txbuf - pointer to data to send
+ * Return: 0x10 - max retries exceeded / transmit failed
+ *         0x20 - transmit success
+ *         0xFF - unknown failure
+ *********************************************************/
+uint8_t SI24R1_TxPacket(uint8_t *txbuf)
 {
-	u8 state;
-	CE=0;																										  //CE¿≠µÕ£¨ πƒ‹SI24R1≈‰÷√
-  SI24R1_Write_Buf(WR_TX_PLOAD, txbuf, TX_PLOAD_WIDTH);	    //–¥ ˝æ›µΩTX FIFO,32∏ˆ◊÷Ω⁄
- 	CE=1;																										  //CE÷√∏ﬂ£¨ πƒ‹∑¢ÀÕ	   
+	uint8_t state;
+	CE_LOW;																			//ÂæÖÊú∫Ê®°ÂºèÊâçÂèØ‰ª•ÈÖçÁΩÆ						  // CE low, disable SI24R1
+    SI24R1_Write_Buf(SI24R1_WRITE_REG + WR_TX_PLOAD, txbuf, TX_PLOAD_WIDTH);	    // Write data to TX FIFO, 32 bytes
+ 	CE_HIGH;																										  // CE high, start transmission
 	
-	while(IRQ == 1);																				  //µ»¥˝∑¢ÀÕÕÍ≥…
-	state = SI24R1_Read_Reg(STATUS);  											  //∂¡»°◊¥Ã¨ºƒ¥Ê∆˜µƒ÷µ	   
-	SI24R1_Write_Reg(WRITE_REG+STATUS, state); 								//«Â≥˝TX_DSªÚMAX_RT÷–∂œ±Í÷æ
-	if(state&MAX_RT)																			    //¥ÔµΩ◊Ó¥Û÷ÿ∑¢¥Œ ˝
+	//ËøôÈáåÊòØËΩÆËÆØÔºå‰∏çË¶Å‰∏≠Êñ≠
+	while((state&TX_DS)==0&& (state&MAX_RT)==0){
+		state=SI24R1_Read_Reg(STATUS);																							// Transmit success or max retries exceeded
+	}																				  // Wait for TX interrupt
+	state = SI24R1_Read_Reg(STATUS);  											  // Read status register
+	SI24R1_Write_Reg(SI24R1_WRITE_REG+STATUS, state); 								// Clear TX_DS & MAX_RT interrupt flags
+	if(state&MAX_RT)																			    // Max retries exceeded
 	{
-		SI24R1_Write_Reg(FLUSH_TX,0xff);										    //«Â≥˝TX FIFOºƒ¥Ê∆˜ 
+		SI24R1_Write_Reg(SI24R1_WRITE_REG + FLUSH_TX,0xff);			//ÊúÄÂ§ßÂÖÖÂÄºÊ¨°Êï∞ÔºåÊâãÂä®Èô§							    // Flush TX FIFO
 		return MAX_RT; 
 	}
-	if(state&TX_DS)																			      //∑¢ÀÕÕÍ≥…
+	if(state&TX_DS)																			      // Transmit success
 	{
 		return TX_DS;
 	}
-	return 0XFF;																						  //∑¢ÀÕ ß∞‹
+	return 0XFF;																						  // Transmit failed
 }
 

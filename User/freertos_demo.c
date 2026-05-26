@@ -142,19 +142,19 @@ void led_task(void *pvParameters){
 
     while(1){
         if(remotestate==REMOTE_CONNECT){
-            int_led_on(&left_top);
+            int_led_turn_on(&left_top);
 
-            int_led_on(&right_top);
+            int_led_turn_on(&right_top);
 
-            int_led_on(&left_bottom);
+            int_led_turn_on(&left_bottom);
 
-            int_led_on(&right_bottom);
+            int_led_turn_on(&right_bottom);
         }
         else if(remotestate==REMOTE_DISCONNECT){
-            int_led_off(&left_top);
-            int_led_off(&right_top);
-            int_led_off(&left_bottom);
-            int_led_off(&right_bottom);
+            int_led_turn_off(&left_top);
+            int_led_turn_off(&right_top);
+            int_led_turn_off(&left_bottom);
+            int_led_turn_off(&right_bottom);
         }
 
         vTaskDelayUntil(&xLastWakeTime,LED_TASK_PERIOD);

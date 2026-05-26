@@ -2,12 +2,16 @@
 #define __nRF24L01P__
 
 #include "main.h"
+#include "spi.h"
 
 // SI24R1 PIN DEFINITION
 
-#define TX_ADR_WIDTH 5    // 5字节宽度的发送/接收地址
-#define TX_PLOAD_WIDTH 32 // 数据通道有效数据宽度
-
+#define TX_ADR_WIDTH 5    // 5 bytes TX/RX address width
+#define TX_PLOAD_WIDTH 32 // 32 bytes payload width
+#define CS_LOW HAL_GPIO_WritePin(GPIOB, SPI1_NSS_GPIO_Port, GPIO_PIN_RESET)  // CSN = 0
+#define CS_HIGH HAL_GPIO_WritePin(GPIOB, SPI1_NSS_GPIO_Port, GPIO_PIN_SET)   // CSN = 1
+#define CE_LOW HAL_GPIO_WritePin(GPIOB, SPI1_CE_GPIO_Port, GPIO_PIN_RESET)   // CE = 0
+#define CE_HIGH HAL_GPIO_WritePin(GPIOB, SPI1_CE_GPIO_Port, GPIO_PIN_SET)    // CE = 1
 //********************************************************************************************************************//
 // SPI(SI24R1) commands
 #define SI24R1_READ_REG 0x00  // Define read command to register
@@ -57,15 +61,15 @@
 //********************************************************************************************************************//
 // SI24R1 API Functions
 void SI24R1_Init(void); // SI24R1 Pin Init
-u8 SI24R1_SI24R1_WRITE_REG(u8 reg, u8 value);
-u8 SI24R1_Write_Buf(u8 reg, const u8 *pBuf, u8 bytes);
-u8 SI24R1_SI24R1_SI24R1_READ_REG(u8 reg);
-u8 SI24R1_Read_Buf(u8 reg, u8 *pBuf, u8 bytes);
+uint8_t SI24R1_Write_Reg(uint8_t reg, uint8_t value);
+uint8_t SI24R1_Write_Buf(uint8_t reg, const uint8_t *pBuf, uint8_t bytes);
+uint8_t SI24R1_Read_Reg(uint8_t reg);
+uint8_t SI24R1_Read_Buf(uint8_t reg, uint8_t *pBuf, uint8_t bytes);
 
 void SI24R1_RX_Mode(void);
 void SI24R1_TX_Mode(void);
-u8 SI24R1_RxPacket(u8 *rxbuf);
-u8 SI24R1_TxPacket(u8 *txbuf);
+uint8_t SI24R1_RxPacket(uint8_t *rxbuf);
+uint8_t SI24R1_TxPacket(uint8_t *txbuf);
 
 //********************************************************************************************************************//
 #endif

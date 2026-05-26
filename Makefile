@@ -69,6 +69,8 @@ C_SOURCES = \
   Middlewares/FreeRTOS/portable/MemMang/heap_4.c \
   Middlewares/FreeRTOS/portable/GCC/ARM_CM3/port.c \
   interface/int_IP5305T.c \
+  interface/int_led.c \
+  interface/int_motor.c \
   f01_flight/Core/Src/gpio.c
 
 ASM_SOURCES = startup_stm32f103xe_gcc.s
