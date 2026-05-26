@@ -14,6 +14,7 @@
 #include "int_motor.h"
 #include "int_led.h"
 #include "com_config.h"
+#include "SI24R1.h"
 
 motor_struct left0={.tim=&htim3,.channel=TIM_CHANNEL_1,.speed=200};
 motor_struct right0={.tim=&htim2,.channel=TIM_CHANNEL_2,.speed=200};
@@ -66,7 +67,11 @@ TaskHandle_t  led_task_handler;
 void led_task(void *pvParameters);
 
 
-
+#define COM_TASK_PRIO 3
+#define COM_STK_SIZE 128
+#define COM_TASK_PERIOD 5
+TaskHandle_t  com_task_handler;
+void com_task(void *pvParameters);
 
 
 void freertos_demo(void)
@@ -113,7 +118,13 @@ void start_task(void *pvParameters)
                 (uint16_t       )LED_STK_SIZE,        /* 任务堆栈大小 */
                 (void*          )NULL,                  /* 传入给任务函数的参数 */
                 (UBaseType_t    )LED_TASK_PRIO,       /* 任务优先级 */
-                (TaskHandle_t*  )&led_task_handler);  /* 任务句柄 */            
+                (TaskHandle_t*  )&led_task_handler);  /* 任务句柄 */      
+    xtaskcreate((TaskFunction_t )com_task,            /* 任务函数 */
+                (const char*    )"com_task",          /* 任务名称 */
+                (uint16_t       )COM_STK_SIZE,        /* 任务堆栈大小 */
+                (void*          )NULL,                  /* 传入给任务函数的参数 */
+                (UBaseType_t    )COM_TASK_PRIO,       /* 任务优先级 */
+                (TaskHandle_t*  )&com_task_handler);  /* 任务句柄 */
 
     taskEXIT_CRITICAL();            /* 退出临界区 */
     vTaskDelete(NULL);              /* 删除自身，避免任务函数返回 */
@@ -159,5 +170,22 @@ void led_task(void *pvParameters){
 
         vTaskDelayUntil(&xLastWakeTime,LED_TASK_PERIOD);
 
+    }
+}
+
+uint8_t com_data[TX_PLOAD_WIDTH]={0};
+void com_task(void *pvParameters){
+    TickType_t xLastWakeTime=xTaskGetTickCount();
+
+    while(1){
+        uint8_t res=SI24R1_RxPacket(com_data);
+        if(res==0){
+            remotestate=REMOTE_CONNECT;
+            //printf("com data:%d %d %d %d %d\r\n",com_data[0],com_data[1],com_data[2],com_data[3],com_data[4]);
+        }
+        else{
+            remotestate=REMOTE_DISCONNECT;
+        }
+        vTaskDelayUntil(&xLastWakeTime,COM_TASK_PERIOD);//接受数据时间间隔等于发送数据时间间隔，保持通信稳定
     }
 }
