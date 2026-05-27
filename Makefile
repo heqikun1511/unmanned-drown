@@ -71,6 +71,7 @@ C_SOURCES = \
   interface/int_IP5305T.c \
   interface/int_led.c \
   interface/int_motor.c \
+  interface/SI24R1.c \
   f01_flight/Core/Src/gpio.c
 
 ASM_SOURCES = startup_stm32f103xe_gcc.s

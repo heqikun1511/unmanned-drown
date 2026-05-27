@@ -119,7 +119,7 @@ void start_task(void *pvParameters)
                 (void*          )NULL,                  /* 传入给任务函数的参数 */
                 (UBaseType_t    )LED_TASK_PRIO,       /* 任务优先级 */
                 (TaskHandle_t*  )&led_task_handler);  /* 任务句柄 */      
-    xtaskcreate((TaskFunction_t )com_task,            /* 任务函数 */
+    xTaskCreate((TaskFunction_t )com_task,            /* 任务函数 */
                 (const char*    )"com_task",          /* 任务名称 */
                 (uint16_t       )COM_STK_SIZE,        /* 任务堆栈大小 */
                 (void*          )NULL,                  /* 传入给任务函数的参数 */
