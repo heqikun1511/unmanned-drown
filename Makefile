@@ -16,7 +16,7 @@ MCU = $(CPU) $(FPU) $(FLOAT_ABI)
 DEFS = -DUSE_HAL_DRIVER -DSTM32F103xE
 
 INCLUDE_DIRS = \
-  User \
+  App \
   Drivers \
   Drivers/CMSIS/Include \
   Drivers/CMSIS/Device/ST/STM32F1xx/Include \
@@ -25,17 +25,17 @@ INCLUDE_DIRS = \
   Middlewares \
   Middlewares/FreeRTOS/include \
   Middlewares/FreeRTOS/portable/GCC/ARM_CM3 \
-  interface \
-  f01_flight/Core/Inc
+  Hardware \
+  CubeMX/f01_flight/Core/Inc
 
 INCLUDES = $(addprefix -I,$(INCLUDE_DIRS))
 
 C_SOURCES = \
-  User/main.c \
+  App/main.c \
   Drivers/CMSIS/Device/ST/STM32F1xx/Source/Templates/system_stm32f1xx.c \
-  User/stm32f1xx_it.c \
-  User/freertos_demo.c \
-  User/syscalls.c \
+  App/stm32f1xx_it.c \
+  App/freertos_demo.c \
+  App/syscalls.c \
   Drivers/SYSTEM/delay/delay.c \
   Drivers/SYSTEM/sys/sys.c \
   Drivers/SYSTEM/usart/usart.c \
@@ -53,6 +53,8 @@ C_SOURCES = \
   Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_ll_fsmc.c \
   Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_tim.c \
   Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_tim_ex.c \
+  Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_spi.c \
+  Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_i2c.c \
   Drivers/BSP/LED/led.c \
   Drivers/BSP/LCD/lcd.c \
   Drivers/BSP/KEY/key.c \
@@ -68,13 +70,17 @@ C_SOURCES = \
   Middlewares/FreeRTOS/timers.c \
   Middlewares/FreeRTOS/portable/MemMang/heap_4.c \
   Middlewares/FreeRTOS/portable/GCC/ARM_CM3/port.c \
-  interface/int_IP5305T.c \
-  interface/int_led.c \
-  interface/int_motor.c \
-  interface/SI24R1.c \
-  f01_flight/Core/Src/gpio.c
+  Hardware/int_IP5305T.c \
+  Hardware/int_led.c \
+  Hardware/int_motor.c \
+  Hardware/SI24R1.c \
+  CubeMX/f01_flight/Core/Src/gpio.c \
+  CubeMX/f01_flight/Core/Src/spi.c \
+  CubeMX/f01_flight/Core/Src/i2c.c \
+  CubeMX/f01_flight/Core/Src/tim.c \
+  CubeMX/f01_flight/Core/Src/stm32f1xx_hal_msp.c
 
-ASM_SOURCES = startup_stm32f103xe_gcc.s
+ASM_SOURCES = Linker/startup_stm32f103xe_gcc.s
 
 OBJECTS = $(addprefix $(BUILD_DIR)/,$(C_SOURCES:.c=.o))
 OBJECTS += $(addprefix $(BUILD_DIR)/,$(ASM_SOURCES:.s=.o))
@@ -83,7 +89,7 @@ DEPENDS = $(OBJECTS:.o=.d)
 
 CFLAGS = $(MCU) $(DEFS) $(INCLUDES) -O0 -g3 -Wall -ffunction-sections -fdata-sections -MMD -MP
 ASFLAGS = $(MCU) -x assembler-with-cpp -MMD -MP
-LDSCRIPT = STM32F103ZE_FLASH.ld
+LDSCRIPT = Linker/STM32F103ZE_FLASH.ld
 LDFLAGS = $(MCU) -T$(LDSCRIPT) -Wl,-Map=$(OUTPUT_DIR)/$(TARGET).map,--cref -Wl,--gc-sections --specs=nano.specs --specs=nosys.specs -u _printf_float
 LDLIBS = -lc -lm -lnosys
 

@@ -8,10 +8,10 @@
 
 #define TX_ADR_WIDTH 5    // 5 bytes TX/RX address width
 #define TX_PLOAD_WIDTH 32 // 32 bytes payload width
-#define CS_LOW HAL_GPIO_WritePin(GPIOB, SPI1_NSS_GPIO_Port, GPIO_PIN_RESET)  // CSN = 0
-#define CS_HIGH HAL_GPIO_WritePin(GPIOB, SPI1_NSS_GPIO_Port, GPIO_PIN_SET)   // CSN = 1
-#define CE_LOW HAL_GPIO_WritePin(GPIOB, SPI1_CE_GPIO_Port, GPIO_PIN_RESET)   // CE = 0
-#define CE_HIGH HAL_GPIO_WritePin(GPIOB, SPI1_CE_GPIO_Port, GPIO_PIN_SET)    // CE = 1
+#define CS_LOW HAL_GPIO_WritePin(SPI1_NSS_GPIO_Port, SPI1_NSS_Pin, GPIO_PIN_RESET)  // CSN = 0
+#define CS_HIGH HAL_GPIO_WritePin(SPI1_NSS_GPIO_Port, SPI1_NSS_Pin, GPIO_PIN_SET)   // CSN = 1
+#define CE_LOW HAL_GPIO_WritePin(SPI_EN_GPIO_Port, SPI_EN_Pin, GPIO_PIN_RESET)      // CE = 0
+#define CE_HIGH HAL_GPIO_WritePin(SPI_EN_GPIO_Port, SPI_EN_Pin, GPIO_PIN_SET)       // CE = 1
 //********************************************************************************************************************//
 // SPI(SI24R1) commands
 #define SI24R1_READ_REG 0x00  // Define read command to register

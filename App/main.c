@@ -18,16 +18,16 @@
  ****************************************************************************************************
  */
 
-#include "./SYSTEM/sys/sys.h"
-#include "./SYSTEM/usart/usart.h"
-#include "./SYSTEM/delay/delay.h"
-#include "./BSP/LED/led.h"
-#include "./BSP/LCD/lcd.h"
-#include "./BSP/KEY/key.h"
-#include "./BSP/SRAM/sram.h"
-#include "./MALLOC/malloc.h"
+#include "SYSTEM/sys/sys.h"
+#include "SYSTEM/usart/usart.h"
+#include "SYSTEM/delay/delay.h"
+#include "BSP/LED/led.h"
+#include "BSP/LCD/lcd.h"
+#include "BSP/KEY/key.h"
+#include "BSP/SRAM/sram.h"
+#include "MALLOC/malloc.h"
 #include "freertos_demo.h"
-#include "./BSP/TIMER/btim.h"
+#include "BSP/TIMER/btim.h"
 
 extern void MX_GPIO_Init(void);
 

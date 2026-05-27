@@ -14,7 +14,7 @@
         "-mthumb"
       ],
       "includePath": [
-        "${workspaceFolder}/User",
+        "${workspaceFolder}/App",
         "${workspaceFolder}/Drivers",
         "${workspaceFolder}/Drivers/CMSIS/Include",
         "${workspaceFolder}/Drivers/CMSIS/Device/ST/STM32F1xx/Include",
@@ -22,11 +22,14 @@
         "${workspaceFolder}/Drivers/STM32F1xx_HAL_Driver/Inc/Legacy",
         "${workspaceFolder}/Middlewares",
         "${workspaceFolder}/Middlewares/FreeRTOS/include",
-        "${workspaceFolder}/Middlewares/FreeRTOS/portable/GCC/ARM_CM3"
+        "${workspaceFolder}/Middlewares/FreeRTOS/portable/GCC/ARM_CM3",
+        "${workspaceFolder}/Hardware",
+        "${workspaceFolder}/Task",
+        "${workspaceFolder}/CubeMX/f01_flight/Core/Inc"
       ],
       "browse": {
         "path": [
-          "${workspaceFolder}/User",
+          "${workspaceFolder}/App",
           "${workspaceFolder}/Drivers",
           "${workspaceFolder}/Drivers/CMSIS/Include",
           "${workspaceFolder}/Drivers/CMSIS/Device/ST/STM32F1xx/Include",
@@ -34,7 +37,10 @@
           "${workspaceFolder}/Drivers/STM32F1xx_HAL_Driver/Inc/Legacy",
           "${workspaceFolder}/Middlewares",
           "${workspaceFolder}/Middlewares/FreeRTOS/include",
-          "${workspaceFolder}/Middlewares/FreeRTOS/portable/GCC/ARM_CM3"
+          "${workspaceFolder}/Middlewares/FreeRTOS/portable/GCC/ARM_CM3",
+          "${workspaceFolder}/Hardware",
+          "${workspaceFolder}/Task",
+          "${workspaceFolder}/CubeMX/f01_flight/Core/Inc"
         ],
         "limitSymbolsToIncludedHeaders": true
       }

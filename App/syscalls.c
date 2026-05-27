@@ -1,7 +1,7 @@
 #include <errno.h>
 #include <sys/stat.h>
 #include <sys/types.h>
-#include "./SYSTEM/usart/usart.h"
+#include "SYSTEM/usart/usart.h"
 
 extern char _end;
 extern char _estack;
