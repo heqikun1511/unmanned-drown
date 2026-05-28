@@ -2,7 +2,9 @@
 #define __MPU6050_H
 #include "i2c.h"
 #include "com_config.h"
-
+#include "FreeRTOS.h"
+#include "task.h"
+#include "stdlib.h"
 
 
 #define MPU6050_ADDR 0x68;
@@ -11,6 +13,7 @@
 
 
 void MPU6050_Init(void);
+void MPU6050_calucate_offset(void);
 
 void MPU6050_Get_GyroData(gyrodata* data);//算角速度
 void MPU6050_Get_AccData(accdata* data);//算加速度

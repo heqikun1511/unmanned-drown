@@ -15,6 +15,7 @@
 #include "int_led.h"
 #include "com_config.h"
 #include "SI24R1.h"
+#include "mpu6050.h"
 
 motor_struct left0={.tim=&htim3,.channel=TIM_CHANNEL_1,.speed=200};
 motor_struct right0={.tim=&htim2,.channel=TIM_CHANNEL_2,.speed=200};
@@ -34,8 +35,7 @@ flightstate flight_state=FAIL;
 
 /* START_TASK 任务 配置
  * 包括: 任务句柄 任务优先级 堆栈大小 创建任务
- List_t                  TestList;           
- /* 任务优先级 */
+ */
 
 #define START_TASK_PRIO 1                  
 #define START_STK_SIZE  128                 /* 任务堆栈大小 */
@@ -140,8 +140,11 @@ void power_task(void *pvParameters){
 void flight_task(void *pvParameters){
 
     TickType_t xLastWakeTime=xTaskGetTickCount();//获取基准时间
-
+    MPU6050_Init();
+    gyrodata gyro_data;
     while(1){
+        MPU6050_Get_GyroData(&gyro_data);
+        printf("gyro data: x=%.2f, y=%.2f, z=%.2f\r\n", gyro_data.gyro_x, gyro_data.gyro_y, gyro_data.gyro_z);
 
        
         vTaskDelayUntil(&xLastWakeTime,FLIGHT_TASK_PERIOD);

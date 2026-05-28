@@ -73,6 +73,7 @@ C_SOURCES = \
   Hardware/int_IP5305T.c \
   Hardware/int_led.c \
   Hardware/int_motor.c \
+  Hardware/mpu6050.c \
   Hardware/SI24R1.c \
   CubeMX/f01_flight/Core/Src/gpio.c \
   CubeMX/f01_flight/Core/Src/spi.c \

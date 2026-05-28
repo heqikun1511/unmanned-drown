@@ -1,4 +1,26 @@
 #include "mpu6050.h"
+#include "com_config.h"
+
+
+//全局声明偏移量的值
+int32_t gyro_offset_x=0;
+int32_t gyro_offset_y=0;    
+int32_t gyro_offset_z=0;
+
+int32_t acc_offset_x=0;
+int32_t acc_offset_y=0;
+int32_t acc_offset_z=0;
+
+
+
+
+int32_t acc_x_sum=0;
+int32_t acc_y_sum=0;
+int32_t acc_z_sum=0;
+
+int32_t gyro_x_sum=0;
+int32_t gyro_y_sum=0;
+int32_t gyro_z_sum=0;
 
 void MPU6050_WriteReg(uint8_t reg, uint8_t data)
 {
@@ -66,4 +88,52 @@ void MPU6050_Get_AccData(accdata *data)
     MPU6050_ReadReg(0x3F, &high);                                         // 读取加速度计Z轴高8位
     MPU6050_ReadReg(0x40, &low);                                          // 读取加速度计Z轴低8位
     data->acc_z = (float)((int16_t)((high << 8) | low)) / 32768.0f * 2.0; // 转换为g
+}
+
+
+void MPU6050_calucate_offset(void){
+
+    accdata current_data={0};
+    accdata last_data={0};
+    uint8_t count=0;
+    //设置停放稳定标准
+    while(count<100){
+        MPU6050_Get_AccData(&current_data);
+        if(abs(current_data.acc_x-last_data.acc_x)<200&&
+           abs(current_data.acc_y-last_data.acc_y)<200&&
+           abs(current_data.acc_z-last_data.acc_z)<200){
+            count++;
+        }
+        else{
+            count=0;
+        }
+        last_data=current_data;
+        vTaskDelay(6);
+
+    //进行零偏校准
+    gyrodata gyro_offset={0};
+    for(uint8_t i=0;i<100;i++){
+        MPU6050_Get_GyroData(&gyro_offset);
+        gyro_x_sum+=gyro_offset.gyro_x;
+        gyro_y_sum+=gyro_offset.gyro_y;
+        gyro_z_sum+=gyro_offset.gyro_z;
+
+        acc_x_sum+=current_data.acc_x;
+        acc_y_sum+=current_data.acc_y;
+        //z方向的零偏值应该是16384，因为在静止状态下，z轴会受到重力加速度的影响，产生一个正向的加速度值，约为1g，
+        ///对应于MPU6050的量程设置为±2g时，输出值为16384
+        acc_z_sum+=(current_data.acc_z-16384);
+        vTaskDelay(10);
+
+}
+
+    acc_offset_x/=100;
+    acc_offset_y/=100;
+    acc_offset_z/=100;
+    gyro_offset_x/=100; 
+    gyro_offset_y/=100;
+    gyro_offset_z/=100;
+
+
+}
 }
