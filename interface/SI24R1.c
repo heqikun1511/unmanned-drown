@@ -2,14 +2,15 @@
 #include "spi.h"
 
 uint8_t  TX_ADDRESS[TX_ADR_WIDTH] = {0x0A,0x01,0x07,0x0E,0x01};  
+uint8_t si24r1_rx_buff[TX_ADR_WIDTH]={0};
 
 uint8_t  SI24R1_check(void)       //用于测试spi是否正常
 {
 	//需要先读取一次，spi正常才可以写入
 	HAL_Delay(200);
-	SI24R1_Read_Buf(SI24R1_WRITE_REG+TX_ADDR,si24r1_rx_buff,TX_ADR_WIDTH);
+	SI24R1_Read_Buf(TX_ADDR,si24r1_rx_buff,TX_ADR_WIDTH);
 	SI24R1_Write_Buf(SI24R1_WRITE_REG+TX_ADDR,TX_ADDRESS,TX_ADR_WIDTH);
-	SI24R1_Read_Buf(SI24R1_WRITE_REG+TX_ADDR,si24r1_rx_buff,TX_ADR_WIDTH);
+	SI24R1_Read_Buf(TX_ADDR,si24r1_rx_buff,TX_ADR_WIDTH);
 
 	for(uint8_t i=0;i<TX_ADR_WIDTH;i++)
 	{
@@ -36,7 +37,6 @@ static uint8_t SPI_RW(uint8_t byte)
  * Input: None
  * Return: None
  *********************************************************/
-uint8_t si24r1_rx_buff[5]={0};
 void SI24R1_Init(void)
 {
 	HAL_Delay(200); 
@@ -144,14 +144,14 @@ uint8_t SI24R1_Read_Buf(uint8_t reg, uint8_t *pBuf, uint8_t bytes)
 void SI24R1_RX_Mode(void)
 {
 	CE_LOW;
-	SI24R1_Write_Buf(WRITE_REG + RX_ADDR_P0, TX_ADDRESS, TX_ADR_WIDTH);	// RX pipe0 uses same address as TX
-	SI24R1_Write_Reg(WRITE_REG + EN_AA, 0x01);               						// Enable auto-ACK on pipe0
-	SI24R1_Write_Reg(WRITE_REG + EN_RXADDR, 0x01);           						// Enable RX pipe0
-	SI24R1_Write_Reg(WRITE_REG + RF_CH, 40);                 						// Select RF channel 40
-	SI24R1_Write_Reg(WRITE_REG + RX_PW_P0, TX_PLOAD_WIDTH);  						// Set payload width for pipe0
-	SI24R1_Write_Reg(WRITE_REG + RF_SETUP, 0x0f);            						// Data rate 2Mbps, TX power 7dBm
-	SI24R1_Write_Reg(WRITE_REG + CONFIG, 0x0f);              						// CRC enable, 16-bit CRC, power up, RX mode
-	SI24R1_Write_Reg(WRITE_REG + STATUS, 0xff);  												// Clear all interrupt flags
+	SI24R1_Write_Buf(SI24R1_WRITE_REG + RX_ADDR_P0, TX_ADDRESS, TX_ADR_WIDTH);	// RX pipe0 uses same address as TX
+	SI24R1_Write_Reg(SI24R1_WRITE_REG + EN_AA, 0x01);               						// Enable auto-ACK on pipe0
+	SI24R1_Write_Reg(SI24R1_WRITE_REG + EN_RXADDR, 0x01);           						// Enable RX pipe0
+	SI24R1_Write_Reg(SI24R1_WRITE_REG + RF_CH, 40);                 						// Select RF channel 40
+	SI24R1_Write_Reg(SI24R1_WRITE_REG + RX_PW_P0, TX_PLOAD_WIDTH);  						// Set payload width for pipe0
+	SI24R1_Write_Reg(SI24R1_WRITE_REG + RF_SETUP, 0x0f);            						// Data rate 2Mbps, TX power 7dBm
+	SI24R1_Write_Reg(SI24R1_WRITE_REG + CONFIG, 0x0f);              						// CRC enable, 16-bit CRC, power up, RX mode
+	SI24R1_Write_Reg(SI24R1_WRITE_REG + STATUS, 0xff);  												// Clear all interrupt flags
 	CE_HIGH;                                            									// CE high, start listening
 }						
 
@@ -192,7 +192,7 @@ uint8_t SI24R1_RxPacket(uint8_t *rxbuf)
 	if(state & RX_DR)								                           // Data received
 	{
 		SI24R1_Read_Buf(RD_RX_PLOAD,rxbuf,TX_PLOAD_WIDTH);     // Read payload
-		SI24R1_Write_Reg(SI24R1_WRITE_REG + FLUSH_RX,0xff);	//清空队列				              // Flush RX FIFO
+		SI24R1_Write_Reg(FLUSH_RX,0xff);	//清空队列				              // Flush RX FIFO
 		return 0; 
 	}   
 	return 1;                                                   // No data received
@@ -221,7 +221,7 @@ uint8_t SI24R1_TxPacket(uint8_t *txbuf)
 	SI24R1_Write_Reg(SI24R1_WRITE_REG+STATUS, state); 								// Clear TX_DS & MAX_RT interrupt flags
 	if(state&MAX_RT)																			    // Max retries exceeded
 	{
-		SI24R1_Write_Reg(SI24R1_WRITE_REG + FLUSH_TX,0xff);			//最大充值次数，手动除							    // Flush TX FIFO
+		SI24R1_Write_Reg(FLUSH_TX,0xff);			//最大充值次数，手动除							    // Flush TX FIFO
 		return MAX_RT; 
 	}
 	if(state&TX_DS)																			      // Transmit success

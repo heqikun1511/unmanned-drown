@@ -51,6 +51,7 @@ C_SOURCES = \
   Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_usart.c \
   Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_sram.c \
   Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_ll_fsmc.c \
+  Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_spi.c \
   Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_tim.c \
   Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_tim_ex.c \
   Drivers/BSP/LED/led.c \
@@ -72,7 +73,8 @@ C_SOURCES = \
   interface/int_led.c \
   interface/int_motor.c \
   interface/SI24R1.c \
-  f01_flight/Core/Src/gpio.c
+  f01_flight/Core/Src/gpio.c \
+  f01_flight/Core/Src/spi.c
 
 ASM_SOURCES = startup_stm32f103xe_gcc.s
 

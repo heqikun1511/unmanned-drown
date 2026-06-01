@@ -73,7 +73,8 @@ void Error_Handler(void);
 #define LED1_GPIO_Port GPIOA
 
 /* USER CODE BEGIN Private defines */
-
+#define SPI1_CE_Pin GPIO_PIN_0
+#define SPI1_CE_GPIO_Port GPIOB
 /* USER CODE END Private defines */
 
 #ifdef __cplusplus
