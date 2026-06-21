@@ -21,7 +21,7 @@ typedef enum
     LEAVE_MAX,
     MIN,
     UNLOCK
-} thr_state;
+} thr_state;//油门遥感
 
 typedef struct
 {

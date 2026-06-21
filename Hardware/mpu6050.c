@@ -3,12 +3,12 @@
 
 
 //全局声明偏移量的值
-int32_t gyro_offset_x=0;
+int32_t gyro_offset_x=0;//陀螺仪偏移
 int32_t gyro_offset_y=0;    
 int32_t gyro_offset_z=0;
 
 int32_t acc_offset_x=0;
-int32_t acc_offset_y=0;
+int32_t acc_offset_y=0;//加速度偏移
 int32_t acc_offset_z=0;
 
 
@@ -18,11 +18,11 @@ int32_t acc_x_sum=0;
 int32_t acc_y_sum=0;
 int32_t acc_z_sum=0;
 
-int32_t gyro_x_sum=0;
+int32_t gyro_x_sum=0;//校准累加和
 int32_t gyro_y_sum=0;
 int32_t gyro_z_sum=0;
 
-void MPU6050_WriteReg(uint8_t reg, uint8_t data)
+void MPU6050_WriteReg(uint8_t reg, uint8_t data)//reg 要写入的MPU6050的内部地址
 {
     // Code to write 'data' to the register 'reg' of MPU6050 using I2C
     HAL_I2C_Mem_Write(&hi2c1, MPU6050_ADDR_WRITE, reg, I2C_MEMADD_SIZE_8BIT, &data, 1, 1000); // 写寄存器
